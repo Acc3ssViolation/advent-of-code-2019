@@ -2,7 +2,7 @@
 {
     internal class Day01_2 : IAssignment
     {
-        public string Run(IReadOnlyList<string> input)
+        public string Run(IReadOnlyList<string> input, bool isTest)
         {
             var sum = 0L;
 

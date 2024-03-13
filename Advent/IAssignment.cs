@@ -44,6 +44,6 @@ namespace Advent
             }
         }
 
-        public string Run(IReadOnlyList<string> input);
+        public string Run(IReadOnlyList<string> input, bool isTest);
     }
 }

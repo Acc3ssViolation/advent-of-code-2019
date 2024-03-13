@@ -4,8 +4,11 @@ namespace Advent.Assignments
 {
     internal class Day02_2 : IAssignment
     {
-        public string Run(IReadOnlyList<string> input)
+        public string Run(IReadOnlyList<string> input, bool isTest)
         {
+            if (isTest)
+                return string.Empty;
+
             var defaultMemory = input[0].ExtractInts().ToArray();
             var memory = defaultMemory.ToArray();
             var processor = new Processor(memory);
