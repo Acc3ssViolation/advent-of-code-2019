@@ -10,7 +10,7 @@ namespace Advent
             get
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    return "D:/Projects/advent-of-code-2019/Advent/";
+                    return "D:/Projects/advent-of-code-2019/Advent/Advent/";
                 else
                     return AppContext.BaseDirectory;
             }
