@@ -27,6 +27,7 @@ namespace Advent.Intcode
             JumpFalse = 6,
             LessThan = 7,
             Equals = 8,
+            SetRelativeBase = 9,
             Halt = 99,
         }
 
@@ -39,6 +40,7 @@ namespace Advent.Intcode
 
         private Memory<long> _memory;
         private int _pc;
+        private int _rb;
         private Flags _flags;
 
         public Processor(Memory<long> memory)
@@ -52,6 +54,22 @@ namespace Advent.Intcode
 
         public void Step()
         {
+            try
+            {
+                StepImpl();
+            }
+            catch (IndexOutOfRangeException)
+            {
+                var pages = (((_memory.Length - 1) / 4096 + 1) * 4096) + 1;
+                var alloc = pages * 2;
+                var newMem = new long[alloc];
+                _memory.CopyTo(newMem);
+                _memory = newMem;
+            }
+        }
+
+        private void StepImpl()
+        {
             var memory = _memory.Span;
 
             var op = memory[_pc];
@@ -64,13 +82,20 @@ namespace Advent.Intcode
             [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
             long ReadArg(Span<long> memory, Span<Mode> modes, int index)
             {
-                var immediate = (int)memory[_pc + index + 1];
+                var immediate = memory[_pc + index + 1];
                 if (modes[index] == Mode.Position)
                 {
 #if DEBUG_ARGUMENTS
-                    Logger.DebugLine($"READ[{index}] POS -> mem[{immediate}] = {memory[immediate]}");
+                    Logger.DebugLine($"READ[{index}] POS -> mem[{(int)immediate}] = {memory[(int)immediate]}");
 #endif
-                    return memory[immediate];
+                    return memory[(int)immediate];
+                }
+                else if (modes[index] == Mode.Relative)
+                {
+#if DEBUG_ARGUMENTS
+                    Logger.DebugLine($"READ[{index}] REL -> mem[{(int)immediate + _rb}] = {memory[(int)immediate + _rb]}");
+#endif
+                    return memory[(int)immediate + _rb];
                 }
 #if DEBUG_ARGUMENTS
                 Logger.DebugLine($"READ[{index}] IMM -> {immediate}");
@@ -81,13 +106,21 @@ namespace Advent.Intcode
             [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
             void WriteArg(Span<long> memory, Span<Mode> modes, int index, long value)
             {
-                var immediate = (int)memory[_pc + index + 1];
+                var immediate = memory[_pc + index + 1];
                 if (modes[index] == Mode.Position)
                 {
 #if DEBUG_ARGUMENTS
-                    Logger.DebugLine($"WRITE[{index}] POS -> mem[{immediate}] = {value}");
+                    Logger.DebugLine($"WRITE[{index}] POS -> mem[{(int)immediate}] = {value}");
 #endif
-                    memory[immediate] = value;
+                    memory[(int)immediate] = value;
+                    return;
+                }
+                else if (modes[index] == Mode.Relative)
+                {
+#if DEBUG_ARGUMENTS
+                    Logger.DebugLine($"WRITE[{index}] REL -> mem[{(int)immediate} + _rb] = {value}");
+#endif
+                    memory[(int)immediate + _rb] = value;
                     return;
                 }
 
@@ -193,6 +226,13 @@ namespace Advent.Intcode
                             WriteArg(memory, modes, 2, 0);
                     }
                     break;
+                case Opcode.SetRelativeBase:
+                    {
+                        var a = ReadArg(memory, modes, 0);
+                        _rb += (int)a;
+                        pcInc = 2;
+                    }
+                    break;
                 case Opcode.Halt:
                     _flags |= Flags.Halt;
                     pcInc = 1;
@@ -218,6 +258,7 @@ namespace Advent.Intcode
 
         public virtual void Reset(Memory<long> memory)
         {
+            _rb = 0;
             _pc = 0;
             _memory = memory;
             _flags = Flags.None;
