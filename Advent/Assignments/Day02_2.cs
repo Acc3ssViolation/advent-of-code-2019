@@ -9,7 +9,7 @@ namespace Advent.Assignments
             if (isTest)
                 return string.Empty;
 
-            var defaultMemory = input[0].ExtractInts().ToArray();
+            var defaultMemory = input[0].ExtractLongs().ToArray();
             var memory = defaultMemory.ToArray();
             var processor = new Processor(memory);
 

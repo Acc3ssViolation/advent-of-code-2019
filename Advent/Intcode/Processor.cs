@@ -34,13 +34,14 @@ namespace Advent.Intcode
         {
             Position = 0,
             Memory = 1,
+            Relative = 2,
         }
 
-        private Memory<int> _memory;
+        private Memory<long> _memory;
         private int _pc;
         private Flags _flags;
 
-        public Processor(Memory<int> memory)
+        public Processor(Memory<long> memory)
         {
             _memory = memory;
         }
@@ -61,9 +62,9 @@ namespace Advent.Intcode
             var inst = (Opcode)(op % 100);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-            int ReadArg(Span<int> memory, Span<Mode> modes, int index)
+            long ReadArg(Span<long> memory, Span<Mode> modes, int index)
             {
-                var immediate = memory[_pc + index + 1];
+                var immediate = (int)memory[_pc + index + 1];
                 if (modes[index] == Mode.Position)
                 {
 #if DEBUG_ARGUMENTS
@@ -78,9 +79,9 @@ namespace Advent.Intcode
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-            void WriteArg(Span<int> memory, Span<Mode> modes, int index, int value)
+            void WriteArg(Span<long> memory, Span<Mode> modes, int index, long value)
             {
-                var immediate = memory[_pc + index + 1];
+                var immediate = (int)memory[_pc + index + 1];
                 if (modes[index] == Mode.Position)
                 {
 #if DEBUG_ARGUMENTS
@@ -150,7 +151,7 @@ namespace Advent.Intcode
                         if (jump)
                         {
                             pcInc = 0;
-                            _pc = ReadArg(memory, modes, 1);
+                            _pc = (int)ReadArg(memory, modes, 1);
                         }
                         else
                         {
@@ -164,7 +165,7 @@ namespace Advent.Intcode
                         if (jump)
                         {
                             pcInc = 0;
-                            _pc = ReadArg(memory, modes, 1);
+                            _pc = (int)ReadArg(memory, modes, 1);
                         }
                         else
                         {
@@ -215,16 +216,16 @@ namespace Advent.Intcode
         public void Jump(int address)
             => _pc = address;
 
-        public virtual void Reset(Memory<int> memory)
+        public virtual void Reset(Memory<long> memory)
         {
             _pc = 0;
             _memory = memory;
             _flags = Flags.None;
         }
 
-        protected virtual int? GetInput()
-            => HaltAndCatchFire<int>();
-        protected virtual bool SetOutput(int value)
+        protected virtual long? GetInput()
+            => HaltAndCatchFire<long>();
+        protected virtual bool SetOutput(long value)
             => HaltAndCatchFire<bool>();
 
         public void RunUntilHalt()

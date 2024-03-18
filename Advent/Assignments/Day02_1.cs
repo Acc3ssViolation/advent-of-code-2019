@@ -6,7 +6,7 @@ namespace Advent.Assignments
     {
         public string Run(IReadOnlyList<string> input, bool isTest)
         {
-            var memory = input[0].ExtractInts().ToArray();
+            var memory = input[0].ExtractLongs().ToArray();
 
             if (!isTest)
             {

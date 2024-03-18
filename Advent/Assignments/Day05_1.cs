@@ -7,18 +7,18 @@ namespace Advent.Assignments
         internal class TESTProcessor : Processor
         {
             public int LastOutput { get; private set; }
-            public TESTProcessor(Memory<int> memory) : base(memory)
+            public TESTProcessor(Memory<long> memory) : base(memory)
             {
             }
 
-            protected override int? GetInput()
+            protected override long? GetInput()
             {
                 return 1;
             }
 
-            protected override bool SetOutput(int value)
+            protected override bool SetOutput(long value)
             {
-                LastOutput = value;
+                LastOutput = (int)value;
                 return true;
             }
         }
@@ -28,7 +28,7 @@ namespace Advent.Assignments
             if (isTest)
                 return string.Empty;
 
-            var memory = input[0].ExtractInts().ToArray();
+            var memory = input[0].ExtractLongs().ToArray();
 
             var processor = new TESTProcessor(memory);
             while (!processor.Halted)

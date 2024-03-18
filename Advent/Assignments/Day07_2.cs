@@ -14,13 +14,13 @@ namespace Advent.Assignments
             private IoBuffer _input;
             private IoBuffer _output;
 
-            public AmpProcessor(Memory<int> memory, IoBuffer input, IoBuffer output) : base(memory)
+            public AmpProcessor(Memory<long> memory, IoBuffer input, IoBuffer output) : base(memory)
             {
                 _input = input;
                 _output = output;
             }
 
-            protected override int? GetInput()
+            protected override long? GetInput()
             {
                 if (_input.Read(out var value))
                     return value;
@@ -28,12 +28,12 @@ namespace Advent.Assignments
                 return null;
             }
 
-            protected override bool SetOutput(int value)
+            protected override bool SetOutput(long value)
             {
-                return _output.Write(value);
+                return _output.Write((int)value);
             }
 
-            public override void Reset(Memory<int> memory)
+            public override void Reset(Memory<long> memory)
             {
                 base.Reset(memory);
             }
@@ -95,7 +95,7 @@ namespace Advent.Assignments
 
         public string Run(IReadOnlyList<string> input, bool isTest)
         {
-            var origMemory = input[0].ExtractInts().ToArray();
+            var origMemory = input[0].ExtractLongs().ToArray();
 
             var bufInOut = new IoBuffer("IN/OUT");
             var bufAToB = new IoBuffer("A->B");

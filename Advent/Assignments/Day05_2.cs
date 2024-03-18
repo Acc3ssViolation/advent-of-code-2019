@@ -9,26 +9,26 @@ namespace Advent.Assignments
             public int LastOutput { get; private set; }
             private int _input;
 
-            public TESTProcessor(Memory<int> memory, int input) : base(memory)
+            public TESTProcessor(Memory<long> memory, int input) : base(memory)
             {
                 _input = input;
             }
 
-            protected override int? GetInput()
+            protected override long? GetInput()
             {
                 return _input;
             }
 
-            protected override bool SetOutput(int value)
+            protected override bool SetOutput(long value)
             {
-                LastOutput = value;
+                LastOutput = (int)value;
                 return true;
             }
         }
 
         public string Run(IReadOnlyList<string> input, bool isTest)
         {
-            var memory = input[0].ExtractInts().ToArray();
+            var memory = input[0].ExtractLongs().ToArray();
 
             var processor = new TESTProcessor(memory, isTest ? -21 : 5);
             while (!processor.Halted)

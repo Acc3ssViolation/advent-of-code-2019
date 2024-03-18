@@ -14,11 +14,11 @@ namespace Advent.Assignments
 
             private bool _inputFlag;
 
-            public AmpProcessor(Memory<int> memory) : base(memory)
+            public AmpProcessor(Memory<long> memory) : base(memory)
             {
             }
 
-            protected override int? GetInput()
+            protected override long? GetInput()
             {
                 if (_inputFlag)
                     return Input;
@@ -27,13 +27,13 @@ namespace Advent.Assignments
                 return Phase;
             }
 
-            protected override bool SetOutput(int value)
+            protected override bool SetOutput(long value)
             {
-                LastOutput = value;
+                LastOutput = (int)value;
                 return true;
             }
 
-            public override void Reset(Memory<int> memory)
+            public override void Reset(Memory<long> memory)
             {
                 base.Reset(memory);
                 LastOutput = 0;
@@ -43,7 +43,7 @@ namespace Advent.Assignments
 
         public string Run(IReadOnlyList<string> input, bool isTest)
         {
-            int CalculateOutput(AmpProcessor processor, IReadOnlyList<int> phase, int[] memory, int[] origMemory)
+            int CalculateOutput(AmpProcessor processor, IReadOnlyList<int> phase, long[] memory, long[] origMemory)
             {
                 processor.Reset(memory);
 
@@ -59,7 +59,7 @@ namespace Advent.Assignments
                 return processor.LastOutput;
             }
 
-            var memory = input[0].ExtractInts().ToArray();
+            var memory = input[0].ExtractLongs().ToArray();
             var origMemory = memory.ToArray();
             var processor = new AmpProcessor(memory);
 
