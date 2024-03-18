@@ -16,7 +16,7 @@ namespace Advent.Assignments
             }
 
             var processor = new Processor(memory);
-            while (!processor.Halt)
+            while (!processor.Halted)
                 processor.Step();
 
             return memory[0].ToString();

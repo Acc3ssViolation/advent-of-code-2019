@@ -20,7 +20,7 @@ namespace Advent.Assignments
                     memory[1] = noun;
                     memory[2] = verb;
                     processor.Reset(memory);
-                    while (!processor.Halt)
+                    while (!processor.Halted)
                         processor.Step();
                     var result = memory[0];
                     if (result == 19690720)

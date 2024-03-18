@@ -1,4 +1,4 @@
-﻿#define AUTO_LOAD_ASSIGNMENTS
+﻿//#define AUTO_LOAD_ASSIGNMENTS
 using Advent;
 using Advent.Assignments;
 
@@ -38,7 +38,7 @@ runner.SkipDays.Add(12);
 //runner.Add(new Day06_1());
 //runner.Add(new Day06_2());
 //runner.Add(new Day07_1());
-//runner.Add(new Day07_2());
+runner.Add(new Day07_2());
 //runner.Add(new Day08_1());
 //runner.Add(new Day08_2());
 //runner.Add(new Day09_1());

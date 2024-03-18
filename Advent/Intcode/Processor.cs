@@ -1,5 +1,6 @@
 ﻿//#define DEBUG_ARGUMENTS
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -7,10 +8,13 @@ namespace Advent.Intcode
 {
     public class Processor
     {
+        [Flags]
         public enum Flags
         {
             None = 0,
-            Halt = 1,
+            Halt = 1 << 0,
+            InputBlocked = 1 << 2,
+            OutputBlocked = 1 << 3,
         }
 
         public enum Opcode
@@ -41,7 +45,9 @@ namespace Advent.Intcode
             _memory = memory;
         }
 
-        public bool Halt => (_flags & Flags.Halt) != Flags.None;
+        public bool Halted => (_flags & Flags.Halt) != Flags.None;
+
+        public bool IoBlocked => (_flags & (Flags.InputBlocked | Flags.OutputBlocked)) != Flags.None;
 
         public void Step()
         {
@@ -110,15 +116,32 @@ namespace Advent.Intcode
                 case Opcode.Input:
                     {
                         var input = GetInput();
-                        WriteArg(memory, modes, 0, input);
-                        pcInc = 2;
+                        if (input.HasValue)
+                        {
+                            _flags &= ~Flags.InputBlocked;
+                            WriteArg(memory, modes, 0, input.Value);
+                            pcInc = 2;
+                        }
+                        else
+                        {
+                            _flags |= Flags.InputBlocked;
+                            pcInc = 0;
+                        }
                     }
                     break;
                 case Opcode.Output:
                     {
                         var value = ReadArg(memory, modes, 0);
-                        SetOutput(value);
-                        pcInc = 2;
+                        if (SetOutput(value))
+                        {
+                            _flags &= ~Flags.OutputBlocked;
+                            pcInc = 2;
+                        }
+                        else
+                        {
+                            _flags |= Flags.OutputBlocked;
+                            pcInc = 0;
+                        }
                     }
                     break;
                 case Opcode.JumpTrue:
@@ -192,17 +215,33 @@ namespace Advent.Intcode
         public void Jump(int address)
             => _pc = address;
 
-        public void Reset(Memory<int> memory)
+        public virtual void Reset(Memory<int> memory)
         {
             _pc = 0;
             _memory = memory;
             _flags = Flags.None;
         }
 
-        protected virtual int GetInput()
+        protected virtual int? GetInput()
             => HaltAndCatchFire<int>();
-        protected virtual void SetOutput(int value)
-            => HaltAndCatchFire<int>();
+        protected virtual bool SetOutput(int value)
+            => HaltAndCatchFire<bool>();
+
+        public void RunUntilHalt()
+        {
+            while (!Halted)
+                Step();
+        }
+
+        public void RunUntilHaltOrBlocked()
+        {
+            while (!Halted)
+            {
+                Step();
+                if (IoBlocked)
+                    return;
+            }
+        }
 
         [DoesNotReturn]
         private static T HaltAndCatchFire<T>()

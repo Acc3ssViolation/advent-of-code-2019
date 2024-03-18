@@ -14,14 +14,15 @@ namespace Advent.Assignments
                 _input = input;
             }
 
-            protected override int GetInput()
+            protected override int? GetInput()
             {
                 return _input;
             }
 
-            protected override void SetOutput(int value)
+            protected override bool SetOutput(int value)
             {
                 LastOutput = value;
+                return true;
             }
         }
 
@@ -30,7 +31,7 @@ namespace Advent.Assignments
             var memory = input[0].ExtractInts().ToArray();
 
             var processor = new TESTProcessor(memory, isTest ? -21 : 5);
-            while (!processor.Halt)
+            while (!processor.Halted)
                 processor.Step();
 
             return processor.LastOutput.ToString();
